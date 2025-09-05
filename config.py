@@ -22,6 +22,10 @@ CREDS_PATH = os.path.join(os.path.dirname(__file__), "credentials.json")
 WALL_DIR = os.path.join(APP_DIR, "wallpapers")
 os.makedirs(WALL_DIR, exist_ok=True)
 
+# Voice recording directories
+VOICE_DIR = os.path.join(APP_DIR, "voice_recordings")
+os.makedirs(VOICE_DIR, exist_ok=True)
+
 # Timezone
 TZ = dt.datetime.now().astimezone().tzinfo
 
@@ -29,6 +33,12 @@ TZ = dt.datetime.now().astimezone().tzinfo
 MAX_CARD_WIDTH = 600
 MAX_CARD_HEIGHT = 700
 WALLPAPER_KEEP_COUNT = 3
+
+# Voice recording settings
+VOICE_SAMPLE_RATE = 44100  # CD quality
+VOICE_CHANNELS = 1  # Mono
+VOICE_FORMAT = "wav"  # WAV format for quality
+VOICE_KEEP_COUNT = 10  # Number of recordings to keep
 
 # LLM settings
 LLM_SYSTEM_PROMPT = (

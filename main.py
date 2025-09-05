@@ -17,6 +17,7 @@ from wallpaper_manager import (
     get_primary_screen_size, 
     generate_wallpaper_filename
 )
+from config_window import ConfigWindow
 
 
 class TaskPaperApp(rumps.App):
@@ -27,6 +28,7 @@ class TaskPaperApp(rumps.App):
         self.creds = load_credentials()
         self.paused = False
         self.lock = threading.Lock()
+        self.config_window = None
 
         # Build menu
         self.status_item = rumps.MenuItem("● Running" if self.creds else "○ Disconnected")
@@ -36,6 +38,7 @@ class TaskPaperApp(rumps.App):
             rumps.MenuItem("Pause", callback=self.toggle),
             rumps.MenuItem("Refresh Now", callback=self.refresh),
             None,
+            rumps.MenuItem("More Options…", callback=self.more_options),
         ]
 
         super().__init__(APP_NAME, icon=None, menu=menu)
@@ -70,6 +73,12 @@ class TaskPaperApp(rumps.App):
     def refresh(self, _):
         """Force immediate refresh."""
         self.tick(None, force_notification=True)
+
+    def more_options(self, _):
+        """Open configuration window."""
+        if self.config_window is None or not self.config_window.is_open():
+            self.config_window = ConfigWindow()
+        self.config_window.show()
 
     def tick(self, _, force_notification: bool = False):
         """Main refresh loop."""

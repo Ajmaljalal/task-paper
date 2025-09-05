@@ -34,3 +34,26 @@ class DisplayItem:
     source: str
     priority: int
     type: str  # 'task' or 'event'
+
+
+@dataclass
+class VoiceRecording:
+    """Voice recording metadata."""
+    id: str
+    filename: str
+    path: str
+    created_at: dt.datetime
+    duration: Optional[float] = None  # seconds
+    transcription: Optional[str] = None
+    processed: bool = False
+
+
+@dataclass
+class VoiceTask:
+    """Task generated from voice recording."""
+    title: str
+    source: str  # 'voice'
+    time: Optional[str]  # 'HH:MM' 24h or None
+    priority: int        # 1..5
+    recording_id: str
+    link: Optional[str] = None
