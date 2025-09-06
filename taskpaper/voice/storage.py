@@ -85,7 +85,7 @@ class VoiceTaskStorage:
             print(f"Failed to save voice tasks: {e}")
             return False
     
-    def add_tasks_from_recording(self, new_tasks: List[VoiceTaskExtended]) -> bool:
+    def add_tasks_from_recording(self, new_tasks: List[VoiceTaskExtended], on_tasks_added_callback=None) -> bool:
         """Add new tasks from a recording, merging with existing tasks."""
         try:
             # Load existing tasks
@@ -100,7 +100,16 @@ class VoiceTaskStorage:
             all_tasks = existing_tasks + new_tasks
             
             # Save merged tasks
-            return self.save_voice_tasks(all_tasks)
+            success = self.save_voice_tasks(all_tasks)
+            
+            # Trigger callback if tasks were successfully added
+            if success and on_tasks_added_callback and new_tasks:
+                try:
+                    on_tasks_added_callback(new_tasks)
+                except Exception as e:
+                    print(f"Error in on_tasks_added_callback: {e}")
+            
+            return success
             
         except Exception as e:
             print(f"Failed to add tasks from recording: {e}")

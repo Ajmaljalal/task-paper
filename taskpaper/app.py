@@ -95,7 +95,7 @@ class TaskPaperApp(rumps.App):
 
     def add_task(self, _):
         """Open voice recording window for adding tasks."""
-        show_voice_window()
+        show_voice_window(on_tasks_added_callback=self._on_voice_tasks_added)
 
     def show_settings(self, _):
         """Open settings window."""
@@ -158,6 +158,15 @@ class TaskPaperApp(rumps.App):
             self.status_item.title = "⚠︎ Error"
         finally:
             self.lock.release()
+    
+    def _on_voice_tasks_added(self, new_tasks):
+        """Callback triggered when new voice tasks are added."""
+        try:
+            # Trigger immediate wallpaper refresh
+            self.tick(None, force_notification=False)
+            print(f"Wallpaper refreshed after adding {len(new_tasks)} voice task(s)")
+        except Exception as e:
+            print(f"Error refreshing wallpaper after voice tasks added: {e}")
     
     def _get_voice_tasks(self):
         """Get today's voice tasks and convert them to UrgentTask format."""

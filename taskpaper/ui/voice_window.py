@@ -15,7 +15,7 @@ from taskpaper.voice.storage import VoiceTaskStorage
 class VoiceWindow(rumps.Window):
     """Voice recording window using rumps.Window for proper native behavior."""
     
-    def __init__(self):
+    def __init__(self, on_tasks_added_callback=None):
         super().__init__(
             "🎤 Add New Task",
             "Voice Recording Configuration",
@@ -27,6 +27,7 @@ class VoiceWindow(rumps.Window):
         self.voice_recorder = VoiceRecorder()
         self.recording_timer = None
         self.is_recording = False
+        self.on_tasks_added_callback = on_tasks_added_callback
         
         # Voice processing components
         self.voice_processor = VoiceProcessor()
@@ -209,7 +210,7 @@ class VoiceWindow(rumps.Window):
                 
                 if tasks:
                     # Save tasks to storage
-                    success = self.voice_storage.add_tasks_from_recording(tasks)
+                    success = self.voice_storage.add_tasks_from_recording(tasks, self.on_tasks_added_callback)
                     
                     if success:
                         task_count = len(tasks)
@@ -244,10 +245,10 @@ class VoiceWindow(rumps.Window):
         processing_thread.start()
 
 
-def show_voice_window():
+def show_voice_window(on_tasks_added_callback=None):
     """Show the voice recording window."""
     try:
-        window = VoiceWindow()
+        window = VoiceWindow(on_tasks_added_callback=on_tasks_added_callback)
         window.run()
     except Exception as e:
         rumps.alert("Error", f"Failed to open voice recording: {e}")
