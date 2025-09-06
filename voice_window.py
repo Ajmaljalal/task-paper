@@ -6,7 +6,7 @@ import threading
 import time
 from typing import Optional
 
-from voice_recorder import VoiceRecorder, cleanup_old_recordings, get_recent_recordings
+from voice_recorder import VoiceRecorder, cleanup_old_recordings
 from models import VoiceRecording
 from voice.processor import VoiceProcessor
 from voice.storage import VoiceTaskStorage
@@ -47,9 +47,7 @@ class VoiceWindow(rumps.Window):
                 "🎤 Voice Recording Ready\n\n"
                 "Use the buttons below to record voice memos.\n"
                 "Recordings will be automatically transcribed and\n"
-                "converted to tasks using OpenAI.\n\n"
-                "Recordings saved to:\n"
-                "~/Library/Application Support/TaskPaper/voice_recordings/"
+                "converted to tasks.\n\n"
             )
             self.default_text = "Click 'Start Recording' to begin..."
     
@@ -74,8 +72,6 @@ class VoiceWindow(rumps.Window):
                     self.message = (
                         f"Recording: {duration:.1f}s\n\n"
                         "Click 'Stop Recording' to save, or 'Cancel Recording' to discard.\n\n"
-                        "Recordings saved to:\n"
-                        "~/Library/Application Support/TaskPaper/voice_recordings/"
                     )
                     # Buttons: [OK=1, Other=0, Cancel=None/2]
                     buttons = ["Stop Recording", "Cancel Recording", "Close"]
@@ -85,37 +81,28 @@ class VoiceWindow(rumps.Window):
                         "🎤 Voice Recording Ready\n\n"
                         "Record voice memos that will be automatically\n"
                         "transcribed and converted to tasks using OpenAI.\n\n"
-                        "Recordings saved to:\n"
-                        "~/Library/Application Support/TaskPaper/voice_recordings/"
                     )
-                    # Buttons: [OK=1, Other=0, Cancel=None/2]
-                    buttons = ["🎤 Start Recording", "📂 View Recent", "Close"]
+                    # Buttons: [OK=1, Cancel=None/2]
+                    buttons = ["🎤 Start Recording", "Close"]
                 
                 # Show dialog with current state
                 response = rumps.alert(
                     self.title,
                     self.message,
                     ok=buttons[0],
-                    other=buttons[1] if len(buttons) > 2 else None,
-                    cancel=buttons[2]
+                    cancel=buttons[1]
                 )
                 
-                # Handle response - SWAPPED to fix the button issue
-                # The user reported Close and View Recent are swapped, so let's swap the logic
-                if response == 1:  # OK button (first button)
+                # Handle response
+                if response == 1:  # OK button (Start Recording)
                     if self.is_recording:
                         self._stop_recording()
                     else:
                         self._start_recording()
-                elif response == 0:  # Other button - this is actually triggering Close
+                else:  # Cancel button (Close)
                     if self.is_recording:
                         self._cancel_recording()
                     break  # Close the window
-                else:  # Cancel button - this is actually triggering View Recent
-                    if self.is_recording:
-                        self._cancel_recording()
-                    else:
-                        self._show_recent_recordings()  # Show recent recordings
                     
             except Exception as e:
                 rumps.alert("Error", f"Recording interface error: {e}")
@@ -186,36 +173,6 @@ class VoiceWindow(rumps.Window):
         except Exception as e:
             rumps.alert("Error", f"Failed to cancel recording: {e}")
             self.is_recording = False
-    
-    def _show_recent_recordings(self):
-        """Show list of recent recordings."""
-        try:
-            recordings = get_recent_recordings(limit=5)
-            
-            if not recordings:
-                rumps.alert("No Recordings", "No voice recordings found yet.\n\nStart recording to create your first voice memo!")
-                return
-            
-            # Build recordings list
-            recording_list = []
-            for i, recording in enumerate(recordings):
-                created = recording.created_at.strftime("%m/%d %H:%M")
-                duration_str = f"{recording.duration:.1f}s" if recording.duration else "unknown"
-                recording_list.append(f"{i+1}. {created} ({duration_str})")
-            
-            recordings_text = "\n".join(recording_list)
-            
-            rumps.alert(
-                "Recent Voice Recordings 📂",
-                f"Your recent recordings:\n\n{recordings_text}\n\n"
-                f"All recordings stored in:\n"
-                f"~/Library/Application Support/TaskPaper/voice_recordings/\n\n"
-                f"Recordings are automatically transcribed and converted to tasks.",
-                ok="OK"
-            )
-            
-        except Exception as e:
-            rumps.alert("Error", f"Failed to load recordings: {e}")
     
     def _start_timer(self):
         """Start timer to update recording duration."""
