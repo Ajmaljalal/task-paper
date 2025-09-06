@@ -190,7 +190,7 @@ def render_wallpaper(tasks: List[UrgentTask], events: List[CalItem], size: Tuple
     draw_card(d, (left, top, left + col_w, top + card_h), radius=28)
     
     # Card header
-    draw_text_with_shadow(d, (left + card_pad, top + card_pad), "Today's Agenda", h1, (255, 255, 255, 255), 2)
+    draw_text_with_shadow(d, (left + card_pad, top + card_pad), "Today's Tasks", h1, (255, 255, 255, 255), 2)
     
     # Content area
     y = top + int(card_pad * 3.0)  # Extra space after title
