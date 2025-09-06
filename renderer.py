@@ -163,10 +163,10 @@ def render_wallpaper(tasks: List[UrgentTask], events: List[CalItem], size: Tuple
     h2 = load_font(int(base * 1.6))
     small = load_font(int(base * 1.2))
     
-    # Header (date)
-    now = dt.datetime.now(TZ)
-    header = f"{now:%A, %b %d}"
-    draw_text_with_shadow(d, (margin, margin), header, title_font, (255, 255, 255, 255), 3)
+    # Header today's date
+    # now = dt.datetime.now(TZ)
+    # header = f"{now:%A, %b %d}"
+    # draw_text_with_shadow(d, (margin, margin), header, title_font, (255, 255, 255, 255), 3)
     
     # Card layout with size constraints
     available_width = W - 2 * margin
