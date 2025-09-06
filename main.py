@@ -48,6 +48,9 @@ class TaskPaperApp(rumps.App):
         ]
 
         super().__init__(APP_NAME, icon=None, menu=menu)
+        
+        # Set the title with emoji icon
+        self.title = "📝"
 
         # Start timer
         self.timer = rumps.Timer(self.tick, REFRESH_SECONDS)
