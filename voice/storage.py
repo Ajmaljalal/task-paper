@@ -110,9 +110,14 @@ class VoiceTaskStorage:
             return False
     
     def get_today_tasks(self) -> List[VoiceTaskExtended]:
-        """Get only today's voice tasks."""
+        """Get only today's voice tasks that are not past due."""
         all_tasks = self.load_voice_tasks()
-        return [task for task in all_tasks if task.is_today]
+        return [task for task in all_tasks if task.is_today and task.is_not_past_due]
+    
+    def get_active_tasks(self) -> List[VoiceTaskExtended]:
+        """Get all active tasks (today's and future tasks that are not past due)."""
+        all_tasks = self.load_voice_tasks()
+        return [task for task in all_tasks if task.is_not_past_due]
     
     def cleanup_old_tasks(self, days_to_keep: int = 30) -> bool:
         """Remove tasks older than specified days."""

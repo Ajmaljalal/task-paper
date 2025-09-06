@@ -33,6 +33,49 @@ class VoiceTaskExtended:
             return True  # Assume today if date parsing fails
     
     @property
+    def is_not_past_due(self) -> bool:
+        """Check if this task is not past due (hasn't ended yet)."""
+        # If no end time specified, task is not past due
+        if not self.end_time:
+            return True
+        
+        # If task is not for today, check if the date is in the future
+        if not self.is_today:
+            if self.date:
+                try:
+                    task_date = dt.datetime.strptime(self.date, "%Y-%m-%d").date()
+                    today = dt.datetime.now().date()
+                    return task_date > today  # Future dates are not past due
+                except (ValueError, TypeError):
+                    return True
+            return True
+        
+        # For today's tasks, check if end time has passed
+        try:
+            now = dt.datetime.now()
+            current_time = now.time()
+            
+            # Parse end_time (could be in "H:MM AM/PM" or "HH:MM" format)
+            end_time_str = self.end_time.strip()
+            
+            # Try parsing with AM/PM format first
+            try:
+                end_time = dt.datetime.strptime(end_time_str, "%I:%M %p").time()
+            except ValueError:
+                # Try 24-hour format
+                try:
+                    end_time = dt.datetime.strptime(end_time_str, "%H:%M").time()
+                except ValueError:
+                    # If parsing fails, assume not past due
+                    return True
+            
+            return current_time <= end_time
+            
+        except (ValueError, TypeError, AttributeError):
+            # If parsing fails, assume not past due
+            return True
+    
+    @property
     def time_range(self) -> Optional[str]:
         """Get formatted time range for display."""
         if self.start_time and self.end_time:
