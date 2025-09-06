@@ -54,6 +54,24 @@ LLM_SYSTEM_PROMPT = (
     "Return strict JSON array: [{\"title\": str, \"source\": \"calendar\", \"time\": \"HH:MM\"|null, \"priority\": 1..5, \"link\": str|null}]\n"
 )
 
+# Voice processing LLM prompt
+VOICE_SYSTEM_PROMPT = (
+    "You are a personal assistant that extracts tasks from voice recordings.\n\n"
+    "IMPORTANT: Only extract if the text is about adding/creating tasks, todos, or reminders. "
+    "If the text is just conversation, notes, or not task-related, return null.\n\n"
+    "Extract tasks with these fields:\n"
+    "- title: Clear, actionable task title\n"
+    "- description: Additional details (optional)\n"  
+    "- priority: 1 (urgent) to 5 (low), default 3\n"
+    "- start_time: \"HH:MM\" format if mentioned (optional)\n"
+    "- end_time: \"HH:MM\" format if mentioned (optional)\n"
+    "- date: \"YYYY-MM-DD\" format, default to today if not specified\n"
+    "- emoji: Relevant emoji for the task (optional)\n\n"
+    "Return JSON format:\n"
+    "{\"tasks\": [{\"title\": \"...\", \"description\": \"...\", \"priority\": 3, \"start_time\": \"09:00\", \"end_time\": \"10:00\", \"date\": \"2024-01-15\", \"emoji\": \"📅\"}]}\n\n"
+    "Return null if not task-related."
+)
+
 
 # Configuration management functions
 def load_config() -> Dict[str, Any]:
