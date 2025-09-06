@@ -18,10 +18,7 @@ class VoiceTaskStorage:
             self.storage_dir = Path(storage_dir)
         else:
             # Use the same app directory as the main app
-            import sys
-            import os
-            sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-            from config import APP_DIR
+            from taskpaper.core.config import APP_DIR
             self.storage_dir = Path(APP_DIR)
         
         self.storage_dir.mkdir(exist_ok=True)
