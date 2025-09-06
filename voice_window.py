@@ -42,7 +42,7 @@ class VoiceWindow(rumps.Window):
             self.default_text = ""
         else:
             self.message = (
-                "🎤 Voice Recording Ready\n\n"
+                "Voice Recording Ready\n\n"
                 "Use the buttons below to record voice memos.\n"
                 "Recordings will be automatically transcribed and\n"
                 "converted to tasks.\n\n"
