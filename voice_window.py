@@ -43,9 +43,14 @@ class VoiceWindow(rumps.Window):
         else:
             self.message = (
                 "Voice Recording Ready\n\n"
-                "Use the buttons below to record voice memos.\n"
-                "Recordings will be automatically transcribed and\n"
-                "converted to tasks.\n\n"
+                "💡 For better task extraction, include:\n"
+                "• WHAT: Describe the task clearly\n"
+                "• WHEN: Mention the date or day\n"
+                "• TIME: Specify if there's a specific time\n"
+                "• DURATION: How long it might take\n\n"
+                "Examples:\n"
+                "\"Call John tomorrow at 2pm about the project\"\n"
+                "\"Review the report on Friday morning for 30 minutes\"\n\n"
             )
             self.default_text = "Click 'Start Recording' to begin..."
     
@@ -77,8 +82,14 @@ class VoiceWindow(rumps.Window):
                     self.title = "🎤 Add New Task"
                     self.message = (
                         "Voice Recording Ready\n\n"
-                        "Record voice memos that will be automatically\n"
-                        "transcribed and converted to tasks.\n\n"
+                        "💡 For better task extraction, include:\n"
+                        "• WHAT: Describe the task clearly\n"
+                        "• WHEN: Mention the date or day\n"
+                        "• TIME: Specify if there's a specific time\n"
+                        "• DURATION: How long it might take\n\n"
+                        "Examples:\n"
+                        "\"Call John tomorrow at 2pm about the project\"\n"
+                        "\"Review the report on Friday morning for 30 minutes\"\n\n"
                     )
                     # Buttons: [OK=1, Cancel=None/2]
                     buttons = ["🎤 Start Recording", "Close"]

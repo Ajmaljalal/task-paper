@@ -41,12 +41,12 @@ class TaskPaperApp(rumps.App):
         self.status_item = rumps.MenuItem("● Running" if self.creds else "○ Disconnected")
         menu = [
             self.status_item,
+            rumps.MenuItem("Pause", callback=self.toggle),
             None,
             rumps.MenuItem("Add Task", callback=self.add_task),
+            rumps.MenuItem("Refresh Now", callback=self.refresh),
             None,
             rumps.MenuItem("Connect Google…", callback=self.connect),
-            rumps.MenuItem("Pause", callback=self.toggle),
-            rumps.MenuItem("Refresh Now", callback=self.refresh),
             None,
             rumps.MenuItem("Settings…", callback=self.show_settings),
         ]
