@@ -98,11 +98,11 @@ def draw_text_with_shadow(draw: ImageDraw.ImageDraw, xy: Tuple[int, int], text: 
 
 def prepare_display_items(tasks: List[UrgentTask], events: List[CalItem]) -> List[DisplayItem]:
     """
-    Prepare items for display, choosing between tasks and events.
+    Prepare items for display, combining calendar and voice tasks.
     
     Args:
-        tasks: Processed urgent tasks
-        events: Raw calendar events
+        tasks: Combined urgent tasks (calendar + voice)
+        events: Raw calendar events (for fallback)
         
     Returns:
         List of items to display on wallpaper
@@ -110,17 +110,17 @@ def prepare_display_items(tasks: List[UrgentTask], events: List[CalItem]) -> Lis
     display_items = []
     
     if tasks:
-        # Show processed tasks
+        # Show processed tasks (calendar + voice combined)
         for task in tasks[:6]:
             when = f"{task.time} • " if task.time else ""
             display_items.append(DisplayItem(
                 text=f"{when}{task.title}",
-                source='calendar',
+                source=task.source,  # 'calendar' or 'voice'
                 priority=task.priority,
                 type='task'
             ))
     else:
-        # Fallback: show raw events
+        # Fallback: show raw calendar events if no processed tasks
         for event in events[:6]:
             start = event.start.strftime("%H:%M") if event.start else "--"
             end = event.end.strftime("%H:%M") if event.end else "--"
@@ -222,9 +222,14 @@ def _render_items(draw: ImageDraw.ImageDraw, items: List[DisplayItem], list_left
     y = start_y
     
     for item in items:
-        # Calendar icon and colors
-        icon = "🕐"
-        icon_color = (100, 150, 255, 255)
+        # Choose icon and colors based on source
+        if item.source == 'voice':
+            icon = "🎤"
+            icon_color = (255, 150, 100, 255)  # Orange for voice
+        else:
+            icon = "🕐"
+            icon_color = (100, 150, 255, 255)  # Blue for calendar
+        
         priority_colors = {
             1: (100, 200, 100), 2: (150, 200, 100), 3: (200, 200, 100), 
             4: (255, 180, 100), 5: (255, 120, 120)

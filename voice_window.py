@@ -8,6 +8,8 @@ from typing import Optional
 
 from voice_recorder import VoiceRecorder, cleanup_old_recordings, get_recent_recordings
 from models import VoiceRecording
+from voice.processor import VoiceProcessor
+from voice.storage import VoiceTaskStorage
 
 
 class VoiceWindow(rumps.Window):
@@ -26,6 +28,10 @@ class VoiceWindow(rumps.Window):
         self.recording_timer = None
         self.is_recording = False
         
+        # Voice processing components
+        self.voice_processor = VoiceProcessor()
+        self.voice_storage = VoiceTaskStorage()
+        
         # Check audio availability
         if not self.voice_recorder.check_audio_available():
             self.message = (
@@ -40,8 +46,8 @@ class VoiceWindow(rumps.Window):
             self.message = (
                 "🎤 Voice Recording Ready\n\n"
                 "Use the buttons below to record voice memos.\n"
-                "Recordings will be automatically saved and can be\n"
-                "transcribed to tasks in future updates.\n\n"
+                "Recordings will be automatically transcribed and\n"
+                "converted to tasks using OpenAI.\n\n"
                 "Recordings saved to:\n"
                 "~/Library/Application Support/TaskPaper/voice_recordings/"
             )
@@ -77,8 +83,8 @@ class VoiceWindow(rumps.Window):
                     self.title = "TaskPaper - Add Task"
                     self.message = (
                         "🎤 Voice Recording Ready\n\n"
-                        "Record voice memos that will be saved locally.\n"
-                        "Future updates will transcribe and convert to tasks.\n\n"
+                        "Record voice memos that will be automatically\n"
+                        "transcribed and converted to tasks using OpenAI.\n\n"
                         "Recordings saved to:\n"
                         "~/Library/Application Support/TaskPaper/voice_recordings/"
                     )
@@ -145,12 +151,16 @@ class VoiceWindow(rumps.Window):
                 duration_str = f"{recording.duration:.1f}s" if recording.duration else "unknown"
                 rumps.notification("TaskPaper", "Recording Saved", f"Voice memo saved ({duration_str})")
                 
+                # Start background processing
+                self._process_recording_async(recording)
+                
                 # Show success message
                 rumps.alert(
                     "Recording Saved! ✅",
                     f"Voice memo saved successfully!\n\n"
                     f"Duration: {duration_str}\n"
                     f"File: {recording.filename}\n\n"
+                    f"Processing for tasks in background...\n"
                     f"Location: ~/Library/Application Support/TaskPaper/voice_recordings/",
                     ok="OK"
                 )
@@ -200,7 +210,7 @@ class VoiceWindow(rumps.Window):
                 f"Your recent recordings:\n\n{recordings_text}\n\n"
                 f"All recordings stored in:\n"
                 f"~/Library/Application Support/TaskPaper/voice_recordings/\n\n"
-                f"Future: These will be transcribed and converted to tasks automatically.",
+                f"Recordings are automatically transcribed and converted to tasks.",
                 ok="OK"
             )
             
@@ -225,6 +235,49 @@ class VoiceWindow(rumps.Window):
     def _timer_callback(self, _):
         """Timer callback - just keeps timer running, actual update happens in main loop."""
         pass
+    
+    def _process_recording_async(self, recording: VoiceRecording):
+        """Process recording in background thread to extract tasks."""
+        def process():
+            try:
+                # Process the recording to extract tasks
+                tasks = self.voice_processor.process_recording(recording.path, recording.id)
+                
+                if tasks:
+                    # Save tasks to storage
+                    success = self.voice_storage.add_tasks_from_recording(tasks)
+                    
+                    if success:
+                        task_count = len(tasks)
+                        today_tasks = [t for t in tasks if t.is_today]
+                        today_count = len(today_tasks)
+                        
+                        # Show notification about extracted tasks
+                        if today_count > 0:
+                            rumps.notification(
+                                "TaskPaper", 
+                                "Tasks Extracted! 📝", 
+                                f"Found {task_count} task(s), {today_count} for today"
+                            )
+                        else:
+                            rumps.notification(
+                                "TaskPaper", 
+                                "Tasks Extracted! 📝", 
+                                f"Found {task_count} task(s) for future dates"
+                            )
+                    else:
+                        print("Failed to save extracted tasks")
+                else:
+                    # No tasks found - likely not task-related content
+                    print(f"No tasks extracted from recording {recording.id} - not task-related content")
+                    
+            except Exception as e:
+                print(f"Error processing recording {recording.id}: {e}")
+                # Don't show error notification to user - just log it
+        
+        # Start processing in background thread
+        processing_thread = threading.Thread(target=process, daemon=True)
+        processing_thread.start()
 
 
 def show_voice_window():

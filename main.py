@@ -20,6 +20,7 @@ from wallpaper_manager import (
 from config_window import ConfigWindow
 from voice_window import show_voice_window
 from settings import show_initial_openai_setup
+from voice.storage import VoiceTaskStorage
 
 
 class TaskPaperApp(rumps.App):
@@ -32,6 +33,9 @@ class TaskPaperApp(rumps.App):
         self.lock = threading.Lock()
         self.config_window = None
         self.initial_config_shown = False
+        
+        # Initialize voice task storage
+        self.voice_storage = VoiceTaskStorage()
 
         # Build menu
         self.status_item = rumps.MenuItem("● Running" if self.creds else "○ Disconnected")
@@ -110,34 +114,109 @@ class TaskPaperApp(rumps.App):
 
     def tick(self, _, force_notification: bool = False):
         """Main refresh loop."""
-        if self.paused or not self.creds:
+        if self.paused:
             return
         if not self.lock.acquire(blocking=False):
             return  # Skip if previous run still working
 
         try:
-            # Get data
+            # Get calendar data (if connected)
             today = dt.datetime.now(TZ).strftime("%Y-%m-%d")
-            events = get_today_events(self.creds)
-            tasks = triage_events(today, events)
-
-            # Generate wallpaper
-            screen_size = get_primary_screen_size()
-            wallpaper_path = generate_wallpaper_filename()
+            events = []
+            calendar_tasks = []
             
-            render_wallpaper(tasks, events, screen_size, wallpaper_path)
-            set_wallpaper_all_displays(wallpaper_path)
-            cleanup_old_wallpapers(wallpaper_path)
+            if self.creds:
+                events = get_today_events(self.creds)
+                calendar_tasks = triage_events(today, events)
+
+            # Get voice tasks
+            voice_tasks = self._get_voice_tasks()
+            
+            # Combine tasks for wallpaper
+            all_tasks = self._combine_tasks(calendar_tasks, voice_tasks)
+
+            # Only regenerate wallpaper if we have tasks or are connected to calendar
+            if all_tasks or self.creds:
+                screen_size = get_primary_screen_size()
+                wallpaper_path = generate_wallpaper_filename()
+                
+                render_wallpaper(all_tasks, events, screen_size, wallpaper_path)
+                set_wallpaper_all_displays(wallpaper_path)
+                cleanup_old_wallpapers(wallpaper_path)
 
             if force_notification:
                 rumps.notification(APP_NAME, "", "Wallpaper updated.")
-            self.status_item.title = "● Running"
+            
+            # Update status
+            if self.creds:
+                self.status_item.title = "● Running"
+            else:
+                self.status_item.title = "○ Disconnected"
             
         except Exception as e:
             print("Error:", e)
             self.status_item.title = "⚠︎ Error"
         finally:
             self.lock.release()
+    
+    def _get_voice_tasks(self):
+        """Get today's voice tasks and convert them to UrgentTask format."""
+        try:
+            from models import UrgentTask
+            
+            voice_tasks = self.voice_storage.get_today_tasks()
+            urgent_tasks = []
+            
+            for voice_task in voice_tasks:
+                # Convert VoiceTaskExtended to UrgentTask format
+                urgent_task = UrgentTask(
+                    title=voice_task.title,
+                    source="voice",
+                    time=voice_task.start_time,  # Use start_time for display
+                    priority=voice_task.priority,
+                    link=None  # Voice tasks don't have links
+                )
+                urgent_tasks.append(urgent_task)
+            
+            return urgent_tasks
+            
+        except Exception as e:
+            print(f"Error loading voice tasks: {e}")
+            return []
+    
+    def _combine_tasks(self, calendar_tasks, voice_tasks):
+        """Combine calendar and voice tasks, prioritizing by urgency and time."""
+        all_tasks = []
+        
+        # Add calendar tasks first (maintain existing priority)
+        all_tasks.extend(calendar_tasks)
+        
+        # Add voice tasks
+        all_tasks.extend(voice_tasks)
+        
+        # Sort by priority (1=highest priority) and then by time
+        def task_sort_key(task):
+            # Priority comes first (1 is highest priority, so lower numbers first)
+            priority = task.priority
+            
+            # Time comes second - tasks with time come before tasks without time
+            time_priority = 0 if task.time else 1
+            
+            # Convert time to minutes for sorting (if available)
+            time_minutes = 0
+            if task.time:
+                try:
+                    hours, minutes = map(int, task.time.split(':'))
+                    time_minutes = hours * 60 + minutes
+                except:
+                    time_minutes = 0
+            
+            return (priority, time_priority, time_minutes)
+        
+        all_tasks.sort(key=task_sort_key)
+        
+        # Limit to 6 tasks total (same as original limit)
+        return all_tasks[:6]
 
 
 def main():
