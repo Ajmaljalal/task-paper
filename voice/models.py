@@ -12,8 +12,8 @@ class VoiceTaskExtended:
     title: str
     description: Optional[str] = None
     priority: int = 3  # 1-5, default medium
-    start_time: Optional[str] = None  # "HH:MM" format
-    end_time: Optional[str] = None    # "HH:MM" format
+    start_time: Optional[str] = None  # "H:MM AM/PM" format
+    end_time: Optional[str] = None    # "H:MM AM/PM" format
     date: Optional[str] = None        # "YYYY-MM-DD" format
     emoji: Optional[str] = None       # Emoji icon for the task
     recording_id: str = ""            # ID of the source recording

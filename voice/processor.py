@@ -103,7 +103,7 @@ class VoiceProcessor:
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.1,
-                max_tokens=1000
+                max_tokens=1000,
             )
             
             result = response.choices[0].message.content.strip()
@@ -121,12 +121,30 @@ class VoiceProcessor:
                 # Convert to VoiceTaskExtended objects
                 tasks = []
                 for task_data in data['tasks']:
+                    start_time = task_data.get('start_time')
+                    end_time = task_data.get('end_time')
+                    
+                    # If end_time is null/not specified but start_time exists, set end_time to start_time + 30 minutes
+                    if not end_time and start_time:
+                        try:
+                            # Parse start_time (format: "H:MM AM/PM")
+                            start_dt = dt.datetime.strptime(start_time, '%I:%M %p')
+                            # Use today's date for calculation
+                            today = dt.datetime.now().replace(hour=start_dt.hour, minute=start_dt.minute, second=0, microsecond=0)
+                            
+                            # Add 30 minutes
+                            end_dt = today + dt.timedelta(minutes=30)
+                            end_time = end_dt.strftime('%I:%M %p').lstrip('0')  # Remove leading zero from hour
+                        except (ValueError, AttributeError):
+                            # If parsing fails, leave end_time as None
+                            pass
+                    
                     task = VoiceTaskExtended(
                         title=task_data.get('title', 'Untitled Task'),
                         description=task_data.get('description'),
                         priority=int(task_data.get('priority', 3)),
-                        start_time=task_data.get('start_time'),
-                        end_time=task_data.get('end_time'),
+                        start_time=start_time,
+                        end_time=end_time,
                         date=task_data.get('date', today),
                         emoji=task_data.get('emoji'),
                         recording_id=recording_id,
