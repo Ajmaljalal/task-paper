@@ -104,12 +104,13 @@ class VoiceProcessor:
                 ],
                 temperature=0.1,
                 max_tokens=1000,
+                response_format={"type": "json_object"}
             )
             
             result = response.choices[0].message.content.strip()
             
-            # Handle null response
-            if result.lower() == 'null' or not result:
+            # Handle empty response
+            if not result:
                 return None
             
             # Parse JSON response

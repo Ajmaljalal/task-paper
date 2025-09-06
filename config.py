@@ -74,7 +74,7 @@ VOICE_SYSTEM_PROMPT = (
     "- If no AM/PM context, use common sense: 1-11 could be AM or PM, 12 is noon\n\n"
     "Return JSON format:\n"
     "{\"tasks\": [{\"title\": \"...\", \"description\": \"...\", \"priority\": 3, \"start_time\": \"9:00 AM\", \"end_time\": \"10:00 AM\", \"date\": \"2024-01-15\", \"emoji\": \"📅\"}]}\n\n"
-    "Return null if not task-related."
+    "Return {\"tasks\": []} if not task-related (NOT null)."
 )
 
 

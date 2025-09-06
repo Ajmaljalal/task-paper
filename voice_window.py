@@ -17,7 +17,7 @@ class VoiceWindow(rumps.Window):
     
     def __init__(self):
         super().__init__(
-            "TaskPaper - Add Task",
+            "Add New Task",
             "Voice Recording Configuration",
             dimensions=(450, 200),
             ok="Close",
@@ -76,11 +76,11 @@ class VoiceWindow(rumps.Window):
                     # Buttons: [OK=1, Other=0, Cancel=None/2]
                     buttons = ["Stop Recording", "Cancel Recording", "Close"]
                 else:
-                    self.title = "TaskPaper - Add Task"
+                    self.title = "Add New Task"
                     self.message = (
                         "🎤 Voice Recording Ready\n\n"
                         "Record voice memos that will be automatically\n"
-                        "transcribed and converted to tasks using OpenAI.\n\n"
+                        "transcribed and converted to tasks.\n\n"
                     )
                     # Buttons: [OK=1, Cancel=None/2]
                     buttons = ["🎤 Start Recording", "Close"]
@@ -146,9 +146,7 @@ class VoiceWindow(rumps.Window):
                     "Recording Saved! ✅",
                     f"Voice memo saved successfully!\n\n"
                     f"Duration: {duration_str}\n"
-                    f"File: {recording.filename}\n\n"
-                    f"Processing for tasks in background...\n"
-                    f"Location: ~/Library/Application Support/TaskPaper/voice_recordings/",
+                    f"Processing for tasks in background...",
                     ok="OK"
                 )
             else:
