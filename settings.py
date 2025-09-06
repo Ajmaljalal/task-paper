@@ -11,7 +11,7 @@ class SettingsWindow(rumps.Window):
     
     def __init__(self):
         super().__init__(
-            "TaskPaper - Settings",
+            "⚙️ TaskPaper - Settings",
             "Configure TaskPaper settings:",
             dimensions=(500, 200),
             ok="Close",
@@ -25,7 +25,7 @@ class SettingsWindow(rumps.Window):
             openai_status = "✅ Configured" if has_openai_api_key() else "❌ Not configured"
             
             response = rumps.alert(
-                "TaskPaper Settings",
+                "⚙️ TaskPaper Settings",
                 f"Current configuration:\n\n"
                 f"🤖 OpenAI API Key: {openai_status}\n\n"
                 f"OpenAI enables AI-powered task triaging from your calendar events.\n"
@@ -55,7 +55,7 @@ class SettingsWindow(rumps.Window):
             default_text = "sk-..."
         
         window = rumps.Window(
-            "OpenAI API Key",
+            "🤖 OpenAI API Key",
             "Enter your OpenAI API key to enable AI-powered task triaging:",
             dimensions=(500, 150),
             ok="Save",

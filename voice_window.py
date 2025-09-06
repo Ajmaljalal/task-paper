@@ -17,7 +17,7 @@ class VoiceWindow(rumps.Window):
     
     def __init__(self):
         super().__init__(
-            "Add New Task",
+            "🎤 Add New Task",
             "Voice Recording Configuration",
             dimensions=(450, 200),
             ok="Close",
@@ -36,10 +36,8 @@ class VoiceWindow(rumps.Window):
         if not self.voice_recorder.check_audio_available():
             self.message = (
                 "❌ Audio Not Available\n\n"
-                "Voice recording requires 'sounddevice' and 'numpy' packages.\n"
-                "Install with: pip install sounddevice numpy\n\n"
-                "Recordings will be saved to:\n"
-                "~/Library/Application Support/TaskPaper/voice_recordings/"
+
+
             )
             self.default_text = ""
         else:
@@ -76,9 +74,9 @@ class VoiceWindow(rumps.Window):
                     # Buttons: [OK=1, Other=0, Cancel=None/2]
                     buttons = ["Stop Recording", "Cancel Recording", "Close"]
                 else:
-                    self.title = "Add New Task"
+                    self.title = "🎤 Add New Task"
                     self.message = (
-                        "🎤 Voice Recording Ready\n\n"
+                        "Voice Recording Ready\n\n"
                         "Record voice memos that will be automatically\n"
                         "transcribed and converted to tasks.\n\n"
                     )
