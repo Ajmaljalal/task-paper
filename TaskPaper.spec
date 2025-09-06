@@ -71,7 +71,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='TaskPaper.app',
-    icon='transparent_icon.png',
+    icon=None,
     bundle_identifier='com.taskpaper.app',
     info_plist={
         'LSUIElement': True,  # Background app, no dock icon

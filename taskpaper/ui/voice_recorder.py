@@ -7,7 +7,7 @@ import uuid
 import wave
 import threading
 import datetime as dt
-from typing import Optional, Callable
+from typing import Optional, Callable, Any
 
 from taskpaper.core.config import VOICE_DIR, VOICE_SAMPLE_RATE, VOICE_CHANNELS, VOICE_FORMAT
 from taskpaper.core.models import VoiceRecording
@@ -210,7 +210,7 @@ class VoiceRecorder:
             print(f"Recording error: {e}")
             self.is_recording = False
     
-    def _save_audio_file(self, filepath: str, audio_data: np.ndarray):
+    def _save_audio_file(self, filepath: str, audio_data: Any):
         """Save recorded audio data to WAV file."""
         try:
             # Convert float32 to int16
@@ -236,7 +236,7 @@ def cleanup_old_recordings(keep_count: int = None):
         keep_count: Number of recordings to keep, uses config default if None
     """
     if keep_count is None:
-        from config import VOICE_KEEP_COUNT
+        from taskpaper.core.config import VOICE_KEEP_COUNT
         keep_count = VOICE_KEEP_COUNT
     
     try:
