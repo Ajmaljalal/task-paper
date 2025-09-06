@@ -6,17 +6,32 @@ import datetime as dt
 from typing import List, Optional
 import os
 
-from config import LLM_SYSTEM_PROMPT, TZ
+from config import LLM_SYSTEM_PROMPT, TZ, get_openai_api_key
 from models import CalItem, UrgentTask
 
 # Optional LLM (OpenAI)
 OPENAI = None
 try:
     from openai import OpenAI
-    if os.getenv("OPENAI_API_KEY"):
-        OPENAI = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    api_key = get_openai_api_key()
+    if api_key:
+        OPENAI = OpenAI(api_key=api_key)
 except Exception:
     OPENAI = None
+
+
+def reinitialize_openai():
+    """Reinitialize OpenAI client with current API key from config."""
+    global OPENAI
+    try:
+        from openai import OpenAI
+        api_key = get_openai_api_key()
+        if api_key:
+            OPENAI = OpenAI(api_key=api_key)
+        else:
+            OPENAI = None
+    except Exception:
+        OPENAI = None
 
 
 def triage_events(today_str: str, events: List[CalItem]) -> List[UrgentTask]:
