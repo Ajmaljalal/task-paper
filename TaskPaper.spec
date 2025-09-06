@@ -6,7 +6,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('transparent_icon.png', '.')],
     hiddenimports=[
         'google.auth.transport.requests',
         'google.auth.transport._http_client',
@@ -71,7 +71,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='TaskPaper.app',
-    icon=None,
+    icon='transparent_icon.png',
     bundle_identifier='com.taskpaper.app',
     info_plist={
         'LSUIElement': True,  # Background app, no dock icon

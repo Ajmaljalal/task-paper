@@ -51,7 +51,7 @@ class TaskPaperApp(rumps.App):
             rumps.MenuItem("Settings…", callback=self.show_settings),
         ]
 
-        super().__init__(APP_NAME, icon=None, menu=menu)
+        super().__init__(APP_NAME, icon="transparent_icon.png", menu=menu)
         
         # Set the title with emoji icon
         self.title = "📝"
