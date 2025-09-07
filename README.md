@@ -21,14 +21,12 @@ A macOS menu bar app that generates dynamic wallpapers based on your calendar ev
 **[Download Latest Release](https://github.com/Ajmaljalal/task-paper/releases/latest)**
 
 ### Installation Options:
-- **TaskPaper-v1.0.0.dmg** (49MB) - **Recommended** - Professional installer
-- **TaskPaper-v1.0.0.zip** (121MB) - Direct app bundle
+- **TaskPaper-v1.0.0.dmg** (49MB)
 
 ## 🚀 Quick Start
 
 ### 1. Installation
 - **DMG**: Double-click → Drag to Applications
-- **ZIP**: Unzip → Drag to Applications
 
 ### 2. First Launch
 1. Launch TaskPaper from Applications
@@ -104,12 +102,12 @@ python main.py
 
 #### Quick Development Build
 ```bash
-./quick_build.sh
+./dev_build.sh
 ```
 
 #### Complete Release Build
 ```bash
-./build_and_package.sh
+./production_build.sh
 ```
 
 This creates:
