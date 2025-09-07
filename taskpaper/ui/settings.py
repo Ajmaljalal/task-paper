@@ -37,7 +37,7 @@ class SettingsWindow(rumps.Window):
             
             if response == 1:  # Configure OpenAI
                 if self._show_openai_config():
-                    continue  # Return to settings after successful config
+                    break  # Close settings after successful config
                 else:
                     break  # User cancelled
             else:  # Close
