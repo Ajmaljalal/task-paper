@@ -192,6 +192,11 @@ class VoiceRecorder:
             def audio_callback(indata, frames, time, status):
                 if status:
                     print(f"Recording status: {status}")
+                    # Check for specific permission-related errors
+                    if "Permission denied" in str(status) or "unauthorized" in str(status).lower():
+                        print("Microphone permission denied!")
+                        self.is_recording = False
+                        return
                 if self.is_recording:
                     self.recording_data.append(indata.copy())
             
@@ -202,12 +207,19 @@ class VoiceRecorder:
                 channels=VOICE_CHANNELS,
                 samplerate=VOICE_SAMPLE_RATE,
                 dtype=np.float32
-            ):
+            ) as stream:
+                print(f"Recording stream started: {stream}")
                 while self.is_recording:
                     sd.sleep(100)  # Sleep 100ms
                     
+        except PermissionError as e:
+            print(f"Microphone permission denied: {e}")
+            self.is_recording = False
         except Exception as e:
             print(f"Recording error: {e}")
+            # Check if this is a permission-related error
+            if "permission" in str(e).lower() or "unauthorized" in str(e).lower():
+                print("This appears to be a microphone permission issue")
             self.is_recording = False
     
     def _save_audio_file(self, filepath: str, audio_data: Any):

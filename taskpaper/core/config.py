@@ -2,6 +2,7 @@
 Configuration constants for TaskPaper app.
 """
 import os
+import sys
 import json
 import datetime as dt
 from typing import Optional, Dict, Any
@@ -20,7 +21,22 @@ APP_DIR = os.path.join(os.path.expanduser("~"), "Library", "Application Support"
 os.makedirs(APP_DIR, exist_ok=True)
 
 TOKEN_PATH = os.path.join(APP_DIR, "token.json")
-CREDS_PATH = os.path.join(os.path.dirname(__file__), "credentials.json")
+
+# Handle credentials.json path for both development and PyInstaller builds
+def _get_credentials_path():
+    """Get the path to credentials.json, handling both dev and packaged environments."""
+    # For PyInstaller builds, check the bundle directory first
+    if getattr(sys, 'frozen', False):
+        # Running in a PyInstaller bundle - credentials.json is bundled in the root
+        bundle_dir = sys._MEIPASS
+        bundle_creds_path = os.path.join(bundle_dir, "credentials.json")
+        return bundle_creds_path
+    
+    # Development environment - check next to this config file
+    dev_creds_path = os.path.join(os.path.dirname(__file__), "credentials.json")
+    return dev_creds_path
+
+CREDS_PATH = _get_credentials_path()
 WALL_DIR = os.path.join(APP_DIR, "wallpapers")
 os.makedirs(WALL_DIR, exist_ok=True)
 

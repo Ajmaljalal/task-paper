@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 
 block_cipher = None
 
@@ -6,7 +7,10 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('transparent_icon.png', '.')],
+    datas=[
+        ('transparent_icon.png', '.'),
+        ('taskpaper/core/credentials.json', '.'),
+    ],
     hiddenimports=[
         'google.auth.transport.requests',
         'google.auth.transport._http_client',
@@ -54,7 +58,7 @@ exe = EXE(
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None,
+    entitlements_file='entitlements.plist',
 )
 
 coll = COLLECT(
@@ -80,5 +84,6 @@ app = BUNDLE(
         'CFBundleVersion': '1.0.0',
         'CFBundleShortVersionString': '1.0.0',
         'NSHumanReadableCopyright': 'Copyright © 2024, TaskPaper',
+        'NSMicrophoneUsageDescription': 'TaskPaper needs microphone access to record voice memos and convert them to tasks using AI.',
     },
 )
