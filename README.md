@@ -1,6 +1,6 @@
 # 📝 TaskPaper
 
-A macOS menu bar app that generates dynamic wallpapers based on your calendar events with AI-powered task triaging.
+TaskPaper helps you stay focused on what matters most by intelligently surfacing urgent tasks from your calendar right on your desktop. A macOS menu bar app that generates dynamic wallpapers based on your calendar events with AI-powered task triaging.
 
 ![TaskPaper Icon](https://img.shields.io/badge/macOS-10.14+-blue?style=flat-square&logo=apple)
 ![Python](https://img.shields.io/badge/Python-3.10+-green?style=flat-square&logo=python)
