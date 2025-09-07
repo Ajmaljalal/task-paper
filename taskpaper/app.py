@@ -33,6 +33,7 @@ class TaskPaperApp(rumps.App):
         self.lock = threading.Lock()
         self.config_window = None
         self.initial_config_shown = False
+        self.initial_setup_timer = None
         
         # Initialize voice task storage
         self.voice_storage = VoiceTaskStorage()
@@ -67,8 +68,8 @@ class TaskPaperApp(rumps.App):
         # Check for OpenAI API key on startup (only once)
         if not has_openai_api_key() and not self.initial_config_shown:
             # Schedule OpenAI config to show after a brief delay to let the app fully initialize
-            timer = rumps.Timer(self._show_initial_openai_config, 2)
-            timer.start()
+            self.initial_setup_timer = rumps.Timer(self._show_initial_openai_config, 2)
+            self.initial_setup_timer.start()
 
     def connect(self, _):
         """Connect to Google services."""
@@ -103,10 +104,22 @@ class TaskPaperApp(rumps.App):
             self.config_window = ConfigWindow()
         self.config_window.show()
     
-    def _show_initial_openai_config(self, _):
+    def _show_initial_openai_config(self, timer):
         """Show OpenAI configuration on first startup."""
         try:
+            # Stop the initial setup timer after first invocation
+            try:
+                if timer:
+                    timer.stop()
+            except Exception:
+                pass
+
+            # Set flag to prevent repeated showing, regardless of outcome
             self.initial_config_shown = True
+            # If key already present (e.g., user just saved it), skip showing
+            if has_openai_api_key():
+                return
+
             show_initial_openai_setup()
             
         except Exception as e:

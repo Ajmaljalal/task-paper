@@ -137,6 +137,10 @@ def show_settings():
 def show_initial_openai_setup():
     """Show OpenAI setup on first launch."""
     try:
+        # If key is already configured, skip showing setup
+        if has_openai_api_key():
+            return
+
         # Show notification first
         rumps.notification(
             "TaskPaper", 
@@ -144,8 +148,29 @@ def show_initial_openai_setup():
             "OpenAI API key needed for AI-powered task triaging."
         )
         
+        # Show initial OpenAI config dialog with retry loop
         window = SettingsWindow()
-        window._show_openai_config()
+        while True:
+            result = window._show_openai_config()
+            if result:
+                # Successfully configured, break out
+                break
+            else:
+                # User cancelled or error occurred, ask if they want to skip
+                response = rumps.alert(
+                    "Setup Incomplete",
+                    "OpenAI API key is required for AI-powered task triaging.\n\n"
+                    "You can configure it later from Settings → Configure OpenAI.\n\n"
+                    "Would you like to try again or skip for now?",
+                    ok="Try Again",
+                    other="Skip",
+                    cancel=None
+                )
+                
+                if response == 1:  # Try Again
+                    continue
+                else:  # Skip
+                    break
         
     except Exception as e:
         print(f"Error showing initial OpenAI setup: {e}")
